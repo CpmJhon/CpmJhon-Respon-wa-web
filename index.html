@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AutoRespon Cyber</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+--cyber-green: #00e676;
+--cyber-dark: #00c853;
+--bg-light: #f4f7f6;
+--surface: #ffffff;
+--text-main: #111827;
+--text-muted: #6b7280;
+--border: #e5e7eb;
+--glow: rgba(0, 230, 118, 0.3);
+--danger: #ff1744;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Inter', sans-serif; }
+
+/* Background dengan efek Grid Cyber/Blueprint tipis */
+body {
+background-color: var(--bg-light);
+background-image: radial-gradient(var(--border) 1px, transparent 1px);
+background-size: 20px 20px;
+color: var(--text-main);
+padding-bottom: 50px;
+}
+
+/* Taskbar */
+.navbar {
+background: var(--surface); padding: 15px 20px;
+display: flex; justify-content: space-between; align-items: center;
+border-bottom: 2px solid var(--cyber-green);
+box-shadow: 0 4px 15px var(--glow); position: sticky; top: 0; z-index: 50;
+}
+.navbar h2 { font-family: 'Space Grotesk', sans-serif; font-size: 20px; font-weight: 700; color: var(--text-main); letter-spacing: 1px; }
+.navbar h2 span { color: var(--cyber-green); }
+.menu-btn { cursor: pointer; color: var(--text-main); display: flex; align-items: center; }
+
+.container { padding: 16px; }
+
+/* Card System */
+.card {
+background: var(--surface); border-radius: 12px; padding: 20px;
+margin-bottom: 16px; border: 1px solid var(--border);
+position: relative; overflow: hidden;
+box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+}
+/* Aksen garis hijau di kiri kartu */
+.card::before {
+content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--cyber-green);
+}
+.card-title { font-family: 'Space Grotesk', sans-serif; font-size: 16px; font-weight: 700; margin-bottom: 16px; color: var(--text-main); text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 8px;}
+
+/* KOTAK PERIZINAN SMART */
+.alert-box { background: #fff0f2; border: 1px solid #ffcdd2; display: none; }
+.alert-box::before { background: var(--danger); }
+.alert-title { color: var(--danger); font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 15px; margin-bottom: 8px; display: flex; align-items: center; gap: 8px;}
+
+/* Input & Form */
+.input-group { margin-bottom: 16px; }
+.input-group label { display: flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;}
+.form-control {
+width: 100%; padding: 14px; border-radius: 8px; border: 2px solid var(--border);
+background: var(--bg-light); font-size: 14px; color: var(--text-main); outline: none; transition: 0.3s;
+font-family: 'Inter', sans-serif; font-weight: 500;
+}
+.form-control:focus { border-color: var(--cyber-green); background: #fff; box-shadow: 0 0 15px var(--glow); }
+
+/* Custom Dropdown UI Native */
+.custom-select-wrapper { position: relative; user-select: none; }
+.custom-select {
+display: flex; justify-content: space-between; align-items: center;
+width: 100%; padding: 14px; border-radius: 8px; border: 2px solid var(--border);
+background: var(--bg-light); font-size: 14px; font-weight: 600; cursor: pointer; color: var(--text-main);
+}
+.custom-select:active { background: #e5e7eb; }
+.custom-options {
+display: none; position: absolute; top: 100%; left: 0; right: 0;
+background: #fff; border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+border: 2px solid var(--cyber-green); margin-top: 5px; z-index: 99; overflow: hidden;
+}
+.custom-options.show { display: block; animation: dropDown 0.2s ease; }
+.option-item { padding: 14px; font-size: 14px; font-weight: 500; border-bottom: 1px solid var(--border); cursor: pointer; display: flex; align-items: center; gap: 8px; }
+.option-item:last-child { border-bottom: none; }
+.option-item:hover, .option-item:active { background: #e8f5e9; color: var(--cyber-dark); }
+@keyframes dropDown { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* Buttons Cyber Style */
+button {
+width: 100%; padding: 14px; background: var(--cyber-green); color: #000;
+border: none; border-radius: 8px; font-family: 'Space Grotesk', sans-serif; font-size: 15px; font-weight: 700;
+cursor: pointer; transition: 0.2s; text-transform: uppercase; letter-spacing: 1px;
+box-shadow: 0 4px 15px var(--glow);
+}
+button:active { transform: scale(0.97); background: var(--cyber-dark); }
+.btn-outline-red { background: transparent; border: 2px solid var(--danger); color: var(--danger); margin-bottom: 8px; box-shadow: none; }
+
+/* List Target Chat */
+.list-item {
+border: 1px solid var(--border); padding: 16px; background: #fff;
+margin-bottom: 12px; border-radius: 8px; position: relative;
+transition: 0.3s;
+}
+.list-item:hover { border-color: var(--cyber-green); box-shadow: 0 0 15px var(--glow); }
+.list-title { font-weight: 700; font-size: 15px; margin-bottom: 6px; padding-right: 70px; color: var(--text-main); display: flex; align-items: flex-start; gap: 8px; }
+.list-ans { font-size: 14px; color: var(--cyber-dark); font-weight: 600; margin-bottom: 10px; display: flex; align-items: flex-start; gap: 8px; }
+.list-tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag { font-size: 10px; font-weight: 600; background: var(--bg-light); color: var(--text-muted); padding: 4px 8px; border-radius: 4px; border: 1px solid var(--border); display: flex; align-items: center; gap: 4px; text-transform: uppercase;}
+
+.btn-del { position: absolute; right: 12px; top: 16px; background: transparent; color: var(--danger); border: 2px solid var(--danger); padding: 6px 12px; font-size: 12px; width: auto; border-radius: 6px; font-weight: 700; box-shadow: none;}
+.btn-del:active { background: var(--danger); color: #fff; }
+
+/* Switch Cyber */
+.switch-wrapper { display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; background: var(--surface); border-radius: 12px; border: 1px solid var(--border); margin-bottom: 16px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05); }
+.switch { position: relative; display: inline-block; width: 50px; height: 26px; }
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background-color: #d1d5db; transition: .4s; border-radius: 34px; }
+.slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 4px; bottom: 4px; background-color: white; transition: .4s; border-radius: 50%; }
+input:checked + .slider { background-color: var(--cyber-green); box-shadow: 0 0 10px var(--glow); }
+input:checked + .slider:before { transform: translateX(24px); }
+
+/* Icon SVG Utility */
+svg { width: 18px; height: 18px; stroke-width: 2; stroke: currentColor; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.icon-sm { width: 14px; height: 14px; }
+
+/* Modal Info */
+.modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(17, 24, 39, 0.8); z-index: 100; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+.modal-content { background: var(--surface); border-radius: 16px; width: 90%; max-width: 320px; padding: 24px; text-align: center; position: relative; border: 2px solid var(--cyber-green); box-shadow: 0 0 30px var(--glow); }
+.close-modal { position: absolute; top: 12px; right: 16px; font-size: 24px; color: var(--text-muted); cursor: pointer; font-family: sans-serif; font-weight: bold;}
+</style>
+</head>
+<body>
+
+<div class="navbar">
+<h2>AUTO<span>RESPON</span></h2>
+<div class="menu-btn" onclick="document.getElementById('devModal').style.display='flex'">
+<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="1"></circle><circle cx="12" cy="5" r="1"></circle><circle cx="12" cy="19" r="1"></circle></svg>
+</div>
+</div>
+
+<div class="container">
+<div class="card alert-box" id="alertPerizinan">
+<div class="alert-title">
+<svg viewBox="0 0 24 24"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+SYSTEM ACCESS REQUIRED
+</div>
+<p style="font-size: 12px; color: var(--text-muted); margin-bottom: 12px;">Grant permissions below to enable background bot processing.</p>
+<button id="btnIzinBaca" class="btn-outline-red" onclick="Android.bukaAksesNotif()">[ GRANT ] Notification Listener</button>
+<button id="btnIzinKirim" class="btn-outline-red" onclick="Android.bukaPengaturanAplikasi()">[ GRANT ] Push Notifications</button>
+</div>
+
+<div class="switch-wrapper">
+<div>
+<span style="font-family: 'Space Grotesk', sans-serif; font-weight: 700; font-size: 15px; color: var(--text-main); display: block;">MAIN ENGINE STATUS</span>
+<span style="font-size: 12px; font-weight: 600; color: var(--text-muted);" id="statusTeks">WAITING...</span>
+</div>
+<label class="switch">
+<input type="checkbox" id="botSwitch" onchange="toggleBot()">
+<span class="slider"></span>
+</label>
+</div>
+
+<div class="card">
+<div class="card-title">
+<svg viewBox="0 0 24 24"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+CREATE NEW RULE
+</div>
+
+<div class="input-group">
+<label><svg class="icon-sm" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg> INCOMING MESSAGE</label>
+<input type="text" id="keyword" class="form-control" placeholder="Type * to reply all messages">
+</div>
+
+<div class="input-group">
+<label><svg class="icon-sm" viewBox="0 0 24 24"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg> BOT RESPONSE</label>
+<input type="text" id="balasan" class="form-control" placeholder="Type automated reply here...">
+</div>
+
+<div class="input-group">
+<label><svg class="icon-sm" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg> TARGET CHAT</label>
+<div class="custom-select-wrapper">
+<div class="custom-select" onclick="toggleSelect('targetChatOptions')">
+<span id="targetChatLabel">Semua Chat (Pribadi & Grup)</span>
+<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+</div>
+<div class="custom-options" id="targetChatOptions">
+<div class="option-item" onclick="pilihOpsi('targetChat', 'SEMUA', 'Semua Chat (Pribadi & Grup)')">Semua Chat (Pribadi & Grup)</div>
+<div class="option-item" onclick="pilihOpsi('targetChat', 'PRIBADI', 'Chat Pribadi Saja')">Chat Pribadi Saja</div>
+<div class="option-item" onclick="pilihOpsi('targetChat', 'GRUB', 'Chat Grup Saja')">Chat Grup Saja</div>
+</div>
+</div>
+</div>
+
+<div class="input-group">
+<label><svg class="icon-sm" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg> WHATSAPP TYPE</label>
+<div class="custom-select-wrapper">
+<div class="custom-select" onclick="toggleSelect('tipeWaOptions')">
+<span id="tipeWaLabel">Berlaku Untuk Semua Tipe WA</span>
+<svg viewBox="0 0 24 24"><polyline points="6 9 12 15 18 9"></polyline></svg>
+</div>
+<div class="custom-options" id="tipeWaOptions">
+<div class="option-item" onclick="pilihOpsi('tipeWa', 'ALL', 'Berlaku Untuk Semua Tipe WA')">Berlaku Untuk Semua Tipe WA</div>
+<div class="option-item" onclick="pilihOpsi('tipeWa', 'com.whatsapp', 'WA Official / Biasa')">WA Official / Biasa</div>
+<div class="option-item" onclick="pilihOpsi('tipeWa', 'com.whatsapp.w4b', 'WA Business')">WA Business</div>
+<div class="option-item" onclick="pilihOpsi('tipeWa', 'com.gbwhatsapp', 'GB WhatsApp')">GB WhatsApp</div>
+</div>
+</div>
+</div>
+
+<div class="input-group">
+<label><svg class="icon-sm" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> SPECIFIC CONTACT (OPTIONAL)</label>
+<input type="text" id="targetKontak" class="form-control" placeholder="Leave blank for all contacts">
+</div>
+
+<div class="input-group">
+<label><svg class="icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> DELAY SECONDS</label>
+<input type="number" id="delay" class="form-control" placeholder="0 = No Delay">
+</div>
+
+<button onclick="simpanData()" style="margin-top: 10px;">INJECT RULE TO SYSTEM</button>
+</div>
+
+<div class="card">
+<div class="card-title">
+<svg viewBox="0 0 24 24"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+ACTIVE RULES LOG
+</div>
+<div id="listContainer"></div>
+</div>
+</div>
+
+<div class="modal-overlay" id="devModal">
+<div class="modal-content">
+<span class="close-modal" onclick="document.getElementById('devModal').style.display='none'">×</span>
+<img src="https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcTWix5K05YY4dE-3moRsCgYHABxR2WnDVO0Xk8UYsM4FA&s=10" style="width:80px; height:80px; border-radius:50%; border:3px solid var(--cyber-green); margin-bottom:10px; box-shadow: 0 0 15px var(--glow);">
+<h3 style="color:var(--text-main); font-family: 'Space Grotesk', sans-serif; font-weight:700; letter-spacing: 2px;">RAY</h3>
+<p style="font-size:13px; color:var(--text-muted); margin-bottom: 20px; font-weight: 500;">System Architect & Developer</p>
+
+<button style="margin-bottom:8px; background:#111; color:#fff;" onclick="Android.bukaSosmed('https://tiktok.com/@rayysuki')">TIKTOK</button>
+<button style="margin-bottom:8px; background:#2AABEE; color:#fff;" onclick="Android.bukaSosmed('https://t.me/RayIndomie')">TELEGRAM</button>
+<button style="background:#25D366; color:#fff;" onclick="Android.bukaSosmed('https://whatsapp.com/channel/0029Vb89VkwLNSZyIqpdbX3t')">WHATSAPP</button>
+</div>
+</div>
+
+<input type="hidden" id="targetChatValue" value="SEMUA">
+<input type="hidden" id="tipeWaValue" value="ALL">
+
+<script>
+function toggleSelect(id) {
+let options = document.getElementById(id);
+if (options.classList.contains("show")) { options.classList.remove("show"); }
+else { document.querySelectorAll('.custom-options').forEach(el => el.classList.remove('show')); options.classList.add("show"); }
+}
+
+function pilihOpsi(jenis, nilai, label) {
+document.getElementById(jenis + 'Value').value = nilai;
+document.getElementById(jenis + 'Label').innerText = label;
+document.getElementById(jenis + 'Options').classList.remove('show');
+}
+
+window.onclick = function(event) {
+if (!event.target.closest('.custom-select-wrapper')) {
+document.querySelectorAll('.custom-options').forEach(el => el.classList.remove('show'));
+}
+}
+
+window.onload = function() {
+muatDaftar();
+let isAktif = Android.isBotAktif();
+document.getElementById("botSwitch").checked = isAktif;
+document.getElementById("statusTeks").innerText = isAktif ? "SYSTEM ONLINE" : "SYSTEM OFFLINE";
+document.getElementById("statusTeks").style.color = isAktif ? "var(--cyber-dark)" : "var(--text-muted)";
+
+// Cek Izin Secara Realtime
+setInterval(cekPerizinan, 1500);
+cekPerizinan();
+};
+
+function cekPerizinan() {
+try {
+let notifBaca = Android.isNotifListenerGranted();
+let notifKirim = Android.isPostNotifGranted();
+
+let btnBaca = document.getElementById("btnIzinBaca");
+let btnKirim = document.getElementById("btnIzinKirim");
+let alertBox = document.getElementById("alertPerizinan");
+
+// Jika Izin 1 selesai, tombol 1 hilang
+btnBaca.style.display = notifBaca ? "none" : "block";
+// Jika Izin 2 selesai, tombol 2 hilang
+btnKirim.style.display = notifKirim ? "none" : "block";
+
+// Jika KEDUANYA selesai, kotak merah musnah
+if (notifBaca && notifKirim) {
+alertBox.style.display = "none";
+} else {
+alertBox.style.display = "block";
+}
+} catch(e) {}
+}
+
+function toggleBot() {
+let isChecked = document.getElementById("botSwitch").checked;
+document.getElementById("statusTeks").innerText = isChecked ? "SYSTEM ONLINE" : "SYSTEM OFFLINE";
+document.getElementById("statusTeks").style.color = isChecked ? "var(--cyber-dark)" : "var(--text-muted)";
+Android.setBotAktif(isChecked);
+}
+
+function muatDaftar() {
+let container = document.getElementById("listContainer");
+try {
+let jsonString = Android.getRulesJson();
+let rules = JSON.parse(jsonString);
+container.innerHTML = "";
+if(rules.length === 0) { container.innerHTML = "<div style='text-align:center; color:var(--text-muted); font-size:13px; font-weight:500; padding: 20px 0;'>No active rules found in database.</div>"; return; }
+
+rules.forEach(r => {
+let dly = r.delayMs/1000;
+let kontak = r.targetKontak ? r.targetKontak : "All";
+
+// Memotong nama package biar rapi di UI
+let waName = r.tipeWa == "ALL" ? "All WA" : (r.tipeWa == "com.whatsapp" ? "WA Normal" : (r.tipeWa == "com.whatsapp.w4b" ? "WA Biz" : "GB WA"));
+let chatName = r.targetChat == "SEMUA" ? "All Chat" : (r.targetChat == "PRIBADI" ? "Private" : "Group");
+
+container.innerHTML += `
+<div class="list-item">
+<div class="list-title">
+<svg viewBox="0 0 24 24" style="stroke: var(--text-muted);"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+${r.keyword}
+</div>
+<div class="list-ans">
+<svg viewBox="0 0 24 24" style="stroke: var(--cyber-dark);"><line x1="22" y1="2" x2="11" y2="13"></line><polygon points="22 2 15 22 11 13 2 9 22 2"></polygon></svg>
+${r.balasan}
+</div>
+<div class="list-tags">
+<span class="tag"><svg class="icon-sm" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> ${dly}s</span>
+<span class="tag"><svg class="icon-sm" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle></svg> ${chatName}</span>
+<span class="tag"><svg class="icon-sm" viewBox="0 0 24 24"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect></svg> ${waName}</span>
+<span class="tag"><svg class="icon-sm" viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg> ${kontak}</span>
+</div>
+<button class="btn-del" onclick="hapus(${r.id})">DEL</button>
+</div>
+`;
+});
+} catch (err) { }
+}
+
+function simpanData() {
+let kw = document.getElementById("keyword").value;
+let bls = document.getElementById("balasan").value;
+let targetC = document.getElementById("targetChatValue").value;
+let tipeW = document.getElementById("tipeWaValue").value;
+let kontak = document.getElementById("targetKontak").value;
+let dly = document.getElementById("delay").value;
+
+if(!kw || !bls) return alert("System Error: Pesan & Balasan wajib diisi!");
+
+Android.tambahRuleFull(kw, bls, dly, tipeW, targetC, kontak);
+
+document.getElementById("keyword").value = "";
+document.getElementById("balasan").value = "";
+document.getElementById("targetKontak").value = "";
+document.getElementById("delay").value = "";
+muatDaftar();
+}
+
+function hapus(id) { Android.hapusRule(id); muatDaftar(); }
+</script>
+</body>
+</html>
