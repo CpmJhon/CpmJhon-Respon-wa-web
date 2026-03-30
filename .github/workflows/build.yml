@@ -1,0 +1,132 @@
+name: Build APK with Play Store Features
+on: [push]
+jobs:
+  build:
+    runs-on: ubuntu-22.04
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+      - name: Install Cordova & Plugins
+        run: |
+          npm install -g cordova
+          cordova create app com.your.app temp
+          cd app
+          cordova platform add android@13.0.0
+          cordova plugin add cordova-plugin-file
+          cordova plugin add cordova-plugin-file-transfer
+          cordova plugin add cordova-plugin-local-notification
+          cordova plugin add cordova-plugin-camera
+          cordova plugin add cordova-plugin-geolocation
+          cordova plugin add cordova-plugin-x-toast
+          cordova plugin add cordova-plugin-vibration
+          cordova plugin add cordova-plugin-inappbrowser
+          cordova plugin add cordova-plugin-network-information
+          cordova plugin add cordova-plugin-screen-orientation
+          cordova plugin add cordova-plugin-share
+          cordova plugin add cordova-plugin-splashscreen
+          cordova plugin add cordova-plugin-statusbar
+          cordova plugin add cordova-plugin-whitelist
+          cordova plugin add phonegap-plugin-barcodescanner
+          cd ..
+          cp -rf app/* .
+      - name: Create JavaScript API for Features
+        run: |
+          mkdir -p www/js
+          cat > www/js/features.js << 'EOF'
+          window.downloadFile = function(url, filename) {
+            if(typeof cordova === 'undefined') { alert('Fitur hanya tersedia di aplikasi APK'); return; }
+            var fileTransfer = new FileTransfer();
+            var uri = encodeURI(url);
+            var fileURL = cordova.file.externalDataDirectory + filename;
+            fileTransfer.download(uri, fileURL,
+              function(entry) {
+                if(window.cordova && cordova.plugins && cordova.plugins.notification && cordova.plugins.notification.local) {
+                  cordova.plugins.notification.local.schedule({ title: 'Download Selesai', message: 'File tersimpan', foreground: true });
+                } else { alert('Download selesai'); }
+              },
+              function(error) { alert('Download error: ' + error.code); },
+              true
+            );
+          };
+          window.showNotification = function(title, message) {
+            if(typeof cordova === 'undefined') { alert('Notifikasi hanya di APK'); return; }
+            if(window.cordova && cordova.plugins && cordova.plugins.notification && cordova.plugins.notification.local) {
+              cordova.plugins.notification.local.schedule({ title: title, message: message, icon: 'res://icon', vibrate: true });
+            } else { alert('Notifikasi: ' + title + ' - ' + message); }
+          };
+          window.takePicture = function(callback) {
+            if(typeof cordova === 'undefined') { alert('Kamera hanya di APK'); return; }
+            navigator.camera.getPicture(function(imageData) {
+              if(callback) callback('data:image/jpeg;base64,' + imageData);
+              else { var img = document.createElement('img'); img.src = 'data:image/jpeg;base64,' + imageData; document.body.appendChild(img); }
+            }, function(err) { alert('Error: ' + err); }, { quality: 80, destinationType: Camera.DestinationType.DATA_URL, sourceType: Camera.PictureSourceType.CAMERA });
+          };
+          window.getLocation = function(callback) {
+            if(typeof cordova === 'undefined') { alert('GPS hanya di APK'); return; }
+            navigator.geolocation.getCurrentPosition(function(pos) {
+              if(callback) callback(pos.coords.latitude, pos.coords.longitude);
+              else alert('Latitude: ' + pos.coords.latitude + '\nLongitude: ' + pos.coords.longitude);
+            }, function(err) { alert('Error: ' + err.message); });
+          };
+          window.shareContent = function(text, url) {
+            if(typeof cordova === 'undefined') { alert('Share hanya di APK'); return; }
+            if(window.plugins && window.plugins.socialsharing) { window.plugins.socialsharing.share(text, null, null, url); }
+            else if(window.navigator && window.navigator.share) { window.navigator.share({title: 'Share', text: text, url: url}); }
+            else { alert('Share: ' + text + ' ' + url); }
+          };
+          window.scanQR = function(callback) {
+            if(typeof cordova === 'undefined') { alert('Scan QR hanya di APK'); return; }
+            cordova.plugins.barcodeScanner.scan(function(result) {
+              if(callback) callback(result.text);
+              else alert('Hasil Scan: ' + result.text);
+            }, function(error) { alert('Scan gagal: ' + error); });
+          };
+          window.vibrate = function(duration) { if(typeof cordova !== 'undefined') navigator.vibrate(duration || 500); };
+          window.showToast = function(message, duration) {
+            if(typeof cordova === 'undefined') { alert(message); return; }
+            if(window.plugins && window.plugins.toast) { window.plugins.toast.show(message, duration || 'short', 'bottom'); }
+            else { alert(message); }
+          };
+          window.isOnline = function() {
+            if(typeof cordova === 'undefined') return navigator.onLine;
+            var networkState = navigator.connection.type;
+            return networkState !== Connection.NONE;
+          };
+          EOF
+          echo '<script src="js/features.js"></script>' >> www/index.html
+      - name: Add Android Permissions to config.xml
+        run: |
+          cat >> config.xml << 'EOFPERM'
+          <edit-config file="app/src/main/AndroidManifest.xml" mode="merge" target="/manifest">
+            <uses-permission android:name="android.permission.CAMERA" />
+            <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+            <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+            <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+            <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+            <uses-permission android:name="android.permission.VIBRATE" />
+            <uses-permission android:name="android.permission.INTERNET" />
+            <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+          </edit-config>
+          <preference name="AndroidXEnabled" value="true" />
+          <preference name="android-minSdkVersion" value="24" />
+          <preference name="android-targetSdkVersion" value="34" />
+          <preference name="SplashScreenDelay" value="3000" />
+          <preference name="FadeSplashScreenDuration" value="500" />
+          <preference name="ShowSplashScreenSpinner" value="false" />
+          <preference name="AutoHideSplashScreen" value="true" />
+          </widget>
+EOFPERM
+      - name: Build Cordova Android
+        run: cordova build android
+      - uses: actions/upload-artifact@v4
+        with:
+          name: Respon-wa-Jhon-APK
+          path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
